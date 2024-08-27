@@ -1,0 +1,66 @@
+# @package _global_
+
+defaults:
+  - override /model: nnp
+
+run:
+  experiment: qm9_${globals.property}
+
+globals:
+  cutoff: 5.0
+  lr: 5e-4
+  property: energy
+  aggregation: sum
+
+data:
+  _target_: schnetpack.data.AtomsDataModule
+  datapath: ${run.work_dir}/data.db
+  data_workdir: null
+  batch_size: 100
+  num_train: 1000
+  num_val: 1000
+  num_test: 1000
+  split_file: ${run.work_dir}/split.npz
+  num_workers: 8
+  num_val_workers: null
+  num_test_workers: null
+  transforms:
+    - _target_: schnetpack.transform.SubtractCenterOfMass
+    - _target_: schnetpack.transform.RemoveOffsets
+      property: ${globals.property}
+      remove_atomrefs: False
+      remove_mean: True
+    - _target_: schnetpack.transform.MatScipyNeighborList
+      cutoff: ${globals.cutoff}
+    - _target_: schnetpack.transform.CastTo32
+
+model:
+  output_modules:
+    - _target_: schnetpack.atomistic.Atomwise
+      output_key: ${globals.property}
+      n_in: ${model.representation.n_atom_basis}
+      aggregation_mode: ${globals.aggregation}
+  postprocessors:
+    - _target_: schnetpack.transform.CastTo64
+    - _target_: schnetpack.transform.AddOffsets
+      property: ${globals.property}
+      add_mean: True
+      add_atomrefs: False
+
+task:
+  scheduler_args:
+    factor: 0.5
+    patience: 20
+    cooldown: 5
+  outputs:
+    - _target_: schnetpack.task.ModelOutput
+      name: ${globals.property}
+      loss_fn:
+        _target_: torch.nn.MSELoss
+      metrics:
+        mae:
+          _target_: torchmetrics.regression.MeanAbsoluteError
+        rmse:
+          _target_: torchmetrics.regression.MeanSquaredError
+          squared: False
+      loss_weight: 1.

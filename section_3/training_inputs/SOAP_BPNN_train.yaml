@@ -1,0 +1,54 @@
+device: gpu
+base_precision: 64
+seed: 1215
+
+architecture:
+  name: experimental.soap_bpnn
+  model:
+    soap:
+      cutoff: 5.0
+      max_radial: 9
+      max_angular: 9
+      atomic_gaussian_width: 0.3
+      center_atom_weight: 0.0
+      cutoff_function:
+        ShiftedCosine:
+          width: 0.5
+      radial_scaling:
+        Willatt2018:
+          rate: 1.0
+          scale: 2.0
+          exponent: 7.0
+    bpnn:
+      layernorm: False
+      num_hidden_layers: 2
+      num_neurons_per_layer: 64
+  training:
+    batch_size: 32
+    num_epochs: 2500
+    learning_rate: 0.001
+    early_stopping_patience: 50
+    scheduler_patience: 5
+    scheduler_factor: 0.75
+    log_interval: 1
+    checkpoint_interval: 20
+    fixed_composition_weights: {}
+    per_atom_targets: ["energy"]
+
+training_set:
+  systems: "qm9_train_100.xyz"
+  targets:
+    energy:
+      key: "U0"
+
+validation_set:
+  systems: "qm9_val.xyz"
+  targets:
+    energy:
+      key: "U0"
+
+test_set:
+  systems: "qm9_test.xyz"
+  targets:
+    energy:
+      key: "U0"
