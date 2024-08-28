@@ -1,6 +1,6 @@
 # Prediction Rigidities for Data-Driven Chemistry
 
-This repository contains the inputs and scripts that were used to obtain the results shared in [our contribution](https://pubs.rsc.org/en/content/articlelanding/2024/fd/d4fd00101j) to the Faraday Discussions: "Data-driven discovery in the chemical sciences". Datasets and trained models will be made available on Materials Cloud.
+This repository contains the inputs and scripts that were used to obtain the results shared in [our contribution](https://pubs.rsc.org/en/content/articlelanding/2024/fd/d4fd00101j) to the Faraday Discussions: "Data-driven discovery in the chemical sciences". Datasets and trained models are available on Materials Cloud, [here](https://doi.org/10.24435/materialscloud:6x-gs). 
 
 The files are organized into the following directories:
 
